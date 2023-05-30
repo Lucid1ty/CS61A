@@ -8,7 +8,15 @@ def hailstone(n):
     >>> next(hail_gen)
     1
     """
-    "*** YOUR CODE HERE ***"
+    if n == 1:
+      while True:
+          yield 1
+    elif n % 2 == 0:
+      yield n
+      yield from hailstone(n // 2)
+    else:
+      yield n
+      yield from hailstone(n * 3 + 1)
 
 
 def merge(a, b):
@@ -23,7 +31,25 @@ def merge(a, b):
     >>> [next(result) for _ in range(10)]
     [2, 3, 5, 7, 8, 9, 11, 13, 14, 15]
     """
-    "*** YOUR CODE HERE ***"
+    item_a = next(a, None)
+    item_b = next(b, None)
+    while item_a is not None or item_b is not None:
+        if item_a is None:
+            yield item_b
+            item_b = next(b, None)
+        elif item_b is None:
+            yield item_a
+            item_a = next(a, None)
+        elif item_a < item_b:
+            yield item_a
+            item_a = next(a, None)
+        elif item_a > item_b:
+            yield item_b
+            item_b = next(b, None)
+        else:
+            yield item_a
+            item_a = next(a, None)
+            item_b = next(b, None)
 
 
 def perms(seq):
@@ -36,7 +62,7 @@ def perms(seq):
     <class 'generator'>
     >>> next(p)
     [100]
-    >>> try: #this piece of code prints "No more permutations!" if calling next would cause an error
+    >>> try: # this piece of code prints "No more permutations!" if calling next would cause an error
     ...     next(p)
     ... except StopIteration:
     ...     print('No more permutations!')
@@ -48,7 +74,12 @@ def perms(seq):
     >>> sorted(perms("ab"))
     [['a', 'b'], ['b', 'a']]
     """
-    "*** YOUR CODE HERE ***"
+    if not seq:
+        yield []
+    else:
+        for p in perms(seq[1:]):
+            for i in range(len(seq)):
+                yield p[:i] + [seq[0]] + p[i:]
 
 
 def yield_paths(t, value):
@@ -85,10 +116,11 @@ def yield_paths(t, value):
     >>> sorted(list(path_to_2))
     [[0, 2], [0, 2, 1, 2]]
     """
-    "*** YOUR CODE HERE ***"
-    for _______________ in _________________:
-        for _______________ in _________________:
-            "*** YOUR CODE HERE ***"
+    if label(t) == value:
+    	yield [value]
+    for b in branches(t):
+    	for path in yield_paths(b, value):
+    		yield [label(t)] + path
 
 
 def remainders_generator(m):
@@ -122,7 +154,12 @@ def remainders_generator(m):
     7
     11
     """
-    "*** YOUR CODE HERE ***"
+    def gen(i):
+        for e in naturals():
+            if e % m == i:
+                yield e
+    for i in range(m):
+        yield gen(i)
 
 
 # Tree ADT
