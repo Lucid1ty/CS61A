@@ -33,10 +33,10 @@ class Mint:
         self.update()
 
     def create(self, coin):
-        "*** YOUR CODE HERE ***"
+        return coin(self.year)
 
     def update(self):
-        "*** YOUR CODE HERE ***"
+        self.year = Mint.present_year
 
 
 class Coin:
@@ -46,7 +46,7 @@ class Coin:
         self.year = year
 
     def worth(self):
-        "*** YOUR CODE HERE ***"
+        return self.cents + max(0, Mint.present_year - self.year - 50)
 
 
 class Nickel(Coin):
@@ -94,7 +94,36 @@ class VendingMachine:
     >>> w.vend()
     'Here is your soda.'
     """
-    "*** YOUR CODE HERE ***"
+    def __init__(self, product, price):
+        self.product = product
+        self.price = price
+        self.stock = 0
+        self.balance = 0
+    
+    def vend(self):
+        if self.stock == 0:
+            return 'Nothing left to vend. Please restock.'
+        elif self.balance < self.price:
+            return 'Please add ${0} more funds.'.format(self.price - self.balance)
+        else:
+            change = self.balance - self.price
+            self.stock -= 1
+            self.balance = 0
+            if change == 0:
+                return 'Here is your {0}.'.format(self.product)
+            else:
+                return 'Here is your {0} and ${1} change.'.format(self.product, change)
+    
+    def restock(self, amount):
+        self.stock += amount
+        return 'Current {0} stock: {1}'.format(self.product, self.stock)
+    
+    def add_funds(self, amount):
+        if self.stock == 0:
+            return 'Nothing left to vend. Please restock. Here is your ${0}.'.format(amount)
+        else:
+            self.balance += amount
+            return 'Current balance: ${0}'.format(self.balance)
 
 
 def make_test_random():
@@ -154,10 +183,20 @@ class Player:
         self.popularity = 100
 
     def debate(self, other):
-        "*** YOUR CODE HERE ***"
+        p1 = self.popularity
+        p2 = other.popularity
+        p1_winning_rate = max(0.1, p1 / (p1 + p2))
+        if random() < p1_winning_rate:
+            self.popularity += 50
+        else:
+            self.popularity -= 50
 
     def speech(self, other):
-        "*** YOUR CODE HERE ***"
+        p1 = self.popularity
+        p2 = other.popularity
+        self.votes += p1 // 10
+        self.popularity += p1 // 10
+        other.popularity -= p2 // 10
 
     def choose(self, other):
         return self.speech
@@ -171,7 +210,6 @@ class Game:
     >>> winner = g.play()
     >>> p1 is winner
     True
-
     """
 
     def __init__(self, player1, player2):
@@ -181,14 +219,21 @@ class Game:
 
     def play(self):
         while not self.game_over():
-            "*** YOUR CODE HERE ***"
+            self.turn += 1
+            self.p1.choose(self.p2)(self.p2)
+            self.p2.choose(self.p1)(self.p1)
         return self.winner()
 
     def game_over(self):
         return max(self.p1.votes, self.p2.votes) >= 50 or self.turn >= 10
 
     def winner(self):
-        "*** YOUR CODE HERE ***"
+        if self.p1.votes > self.p2.votes:
+            return self.p1
+        elif self.p1.votes < self.p2.votes:
+            return self.p2
+        else:
+            return None
 
 
 # Phase 3: New Players
@@ -200,11 +245,12 @@ class AggressivePlayer(Player):
     >>> winner = g.play()
     >>> p1 is winner
     True
-
     """
-
     def choose(self, other):
-        "*** YOUR CODE HERE ***"
+        if self.popularity <= other.popularity:
+            return self.debate
+        else:
+            return self.speech
 
 
 class CautiousPlayer(Player):
@@ -217,11 +263,12 @@ class CautiousPlayer(Player):
     >>> p1.popularity = 1
     >>> p1.choose(p2) == p1.debate
     False
-
     """
-
     def choose(self, other):
-        "*** YOUR CODE HERE ***"
+        if self.popularity == 0:
+            return self.debate
+        else:
+            return self.speech
 
 
 class VirFib():
@@ -245,12 +292,16 @@ class VirFib():
     >>> start.next().next().next().next().next().next() # Ensure start isn't changed
     VirFib object, value 8
     """
-
     def __init__(self, value=0):
         self.value = value
 
     def next(self):
-        "*** YOUR CODE HERE ***"
+        if self.value == 0:
+            result = VirFib(1)
+        else:
+            result = VirFib(self.value + self.previous)
+        result.previous = self.value
+        return result
 
     def __repr__(self):
         return "VirFib object, value " + str(self.value)
